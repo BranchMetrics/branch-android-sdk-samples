@@ -30,7 +30,7 @@ It provides simple use cases that integrate most of the Android Advanced Feature
 
 - App Creates a Branch Link on App Load at the top of the screen
 
-- Send Branch Purchase Event, Add To Cart Event, and Change Background Color Event using the Buttons
+- Send Branch Purchase Event, Add To Cart Event, and Change Branch Badge Event using the Buttons
 
 - Create a QR Code / Share Branch Link with Navigation Buttons
 
