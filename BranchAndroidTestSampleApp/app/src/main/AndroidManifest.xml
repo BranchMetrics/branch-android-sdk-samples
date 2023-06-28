@@ -48,7 +48,7 @@
                 <!-- If utilizing $deeplink_path please explicitly declare your hosts, or utilize a wildcard(*) -->
                 <data
                     android:host="open"
-                    android:scheme="androidtestsampleapp" />
+                    android:scheme="branchsampleapp" />
 
                 <action android:name="android.intent.action.VIEW" />
 
@@ -64,11 +64,11 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="brandonboothe.app.link"
+                    android:host="branchsampleapps.app.link"
                     android:scheme="https" />
                 <!-- example-alternate domain is required for App Links when the Journeys/Web SDK and Deepviews are used inside your website. -->
                 <data
-                    android:host="brandonboothe-alternate.app.link"
+                    android:host="branchsampleapps-alternate.app.link"
                     android:scheme="https" />
             </intent-filter>
             <!-- Branch App Links - Test App -->
@@ -79,20 +79,20 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="brandonboothe.test-app.link"
+                    android:host="branchsampleapps.test-app.link"
                     android:scheme="https" />
                 <!-- example-alternate domain is required for App Links when the Journeys/Web SDK and Deepviews are used inside your website. -->
                 <data
-                    android:host="brandonboothe.test-app.link"
+                    android:host="branchsampleapps-alternate.test-app.link"
                     android:scheme="https" />
             </intent-filter>
         </activity> <!-- Branch init -->
         <meta-data
             android:name="io.branch.sdk.BranchKey"
-            android:value="key_live_pfXRGHm8v4dqw6tUDF2e3ekctxlbGz8U" />
+            android:value="key_live_dh1ZXXkeXYQVs5dtp0JaFokptspY4lz5" />
         <meta-data
             android:name="io.branch.sdk.BranchKey.test"
-            android:value="key_test_fo4IPGcZy1gDx4qLtz3rpbabrwemRA69" />
+            android:value="key_test_cm0794ba2WGPEYaAh8G8nhjfxvpZYeNk" />
         <meta-data
             android:name="io.branch.sdk.TestMode"
             android:value="false" />
