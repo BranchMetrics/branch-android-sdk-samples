@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
                     lifecycleScope.launch(Dispatchers.IO) {
                         Log.i(TAG, "Waiting for Branch to finish initializing...")
-                        delay(300)
+                        delay(400)
 
                         val firstReferringParamsSync = Branch.getInstance().firstReferringParamsSync
                         Log.i(TAG, "Fetched referring deep link params: $firstReferringParamsSync")
