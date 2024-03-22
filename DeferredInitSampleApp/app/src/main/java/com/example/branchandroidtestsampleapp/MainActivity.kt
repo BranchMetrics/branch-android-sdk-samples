@@ -11,7 +11,6 @@ import android.view.Gravity
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
 import android.widget.*
-import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.ViewModelProvider
@@ -21,7 +20,11 @@ import io.branch.referral.BranchError
 import io.branch.referral.QRCode.BranchQRCode
 import io.branch.referral.SharingHelper
 import io.branch.referral.util.*
-import org.w3c.dom.Text
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
 
 import java.util.*
 
@@ -36,34 +39,50 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        Branch.expectDelayedSessionInitialization(true)
 
         val sharedPrefs = getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         val firstOpen = sharedPrefs.getBoolean("firstOpen", true)
 
         //Check if this is the first open
         if (firstOpen) {
-            //If it is, show a dialog with a accept and deny option, run two parts of code based on their answer
-            val dialog = AlertDialog.Builder(this)
+            //If it is, show a dialog with a accept and deny option, initialize Branch with tracking enabled/disabled based on the choice
+            AlertDialog.Builder(this)
                 .setTitle("Privacy Policy")
                 .setMessage("This app uses the Branch SDK to demonstrate deep linking and attribution. Do you accept the use of the Branch SDK?")
-                .setPositiveButton("Accept") { dialog, which ->
+                .setPositiveButton("Accept") { _, _ ->
                     Log.i(TAG, "User accepted the use of the Branch SDK")
 
-                    // ---------- Initialize Branch Session on App Open ----------
-                    initBranch()
+                    //Will cause the Branch session to initialize
+                    Branch.getInstance().disableTracking(false);
+                    Log.i(TAG, "Tracking enabled")
+
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        Log.i(TAG, "Waiting for Branch to finish initializing...")
+                        delay(300)
+
+                        val firstReferringParamsSync = Branch.getInstance().firstReferringParamsSync
+                        Log.i(TAG, "Fetched referring deep link params: $firstReferringParamsSync")
+
+                        withContext(Dispatchers.Main) {
+                            if (firstReferringParamsSync.optString("\$deeplink_path") == "color block page") {
+                                val intent = Intent(this@MainActivity, ColorBlockPage::class.java)
+                                intent.putExtra("branch_force_new_session", true)
+                                startActivity(intent)
+                            }
+                        }
+                    }
+
                     createBranchLink()
                 }
                 .setNegativeButton("Deny") { dialog, which ->
                     Log.i(TAG, "User denied the use of the Branch SDK. Disabling tracking")
-                    Branch.getInstance().disableTracking(true);
+
                     initBranch()
 
                     createBranchLink()
                 }
                 .show()
 
-            //Set firstOpen to false
             sharedPrefs.edit().putBoolean("firstOpen", false).apply()
         } else {
             //If it is not the first open, log that the user has already seen the dialog
@@ -139,8 +158,9 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        Log.d(TAG, "onNewIntent called")
+        Log.i(TAG, "onNewIntent called")
         Branch.sessionBuilder(this).withCallback { referringParams, error ->
+
             if (error != null) {
                 Log.e(TAG, error.message)
             } else if (referringParams != null) {
@@ -163,6 +183,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initBranch() {
+        Log.i(TAG, "Initializing Branch via initBranch...")
         Branch.sessionBuilder(this).withCallback { branchUniversalObject, linkProperties, error ->
             if (error != null) {
                 Log.e(TAG, "branch init failed. Caused by -" + error.message)
