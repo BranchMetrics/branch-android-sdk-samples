@@ -53,22 +53,17 @@ class MainActivity : AppCompatActivity() {
                     Log.i(TAG, "User accepted the use of the Branch SDK")
 
                     //Will cause the Branch session to initialize
-                    Branch.getInstance().disableTracking(false);
-                    Log.i(TAG, "Tracking enabled")
+                    Branch.getInstance().disableTracking(false) { _, referringParams, error ->
 
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        Log.i(TAG, "Waiting for Branch to finish initializing...")
-                        delay(400)
-
-                        val firstReferringParamsSync = Branch.getInstance().firstReferringParamsSync
-                        Log.i(TAG, "Fetched referring deep link params: $firstReferringParamsSync")
-
-                        withContext(Dispatchers.Main) {
-                            if (firstReferringParamsSync.optString("\$deeplink_path") == "color block page") {
+                        Log.i(TAG, "Fetched referring deep link params: $referringParams")
+                        if (referringParams != null) {
+                            if (referringParams.optString("\$deeplink_path") == "color block page") {
                                 val intent = Intent(this@MainActivity, ColorBlockPage::class.java)
                                 intent.putExtra("branch_force_new_session", true)
                                 startActivity(intent)
                             }
+                        } else {
+                            Log.e(TAG, "No referring deep link params found. Error: $error")
                         }
                     }
 
